@@ -1,10 +1,6 @@
 import * as passport from 'passport';
-import { MongooseModule } from '@nestjs/mongoose';
 import {
-  Module,
-  NestModule,
-  MiddlewaresConsumer,
-  RequestMethod,
+  Module
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './passport/jwt.strategy';
@@ -14,6 +10,7 @@ import { EmailVerificationSchema } from '../auth/schemas/emailverification.schem
 import { ForgottenPasswordSchema } from './schemas/forgottenpassword.schema';
 import { UsersService } from '../users/users.service';
 import { JWTService } from './jwt.service';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -21,9 +18,7 @@ import { JWTService } from './jwt.service';
     { name: 'EmailVerification', schema: EmailVerificationSchema },
     { name: 'ForgottenPassword', schema: ForgottenPasswordSchema }
   ])],
-  components: [JWTService, JwtStrategy, AuthService, UsersService],
   controllers: [AuthController],
+  providers: [AuthService, UsersService, JWTService, JwtStrategy],
 })
-export class AuthModule implements NestModule {
-  public configure(consumer: MiddlewaresConsumer) {}
-}
+export class AuthModule {}

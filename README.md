@@ -1,5 +1,5 @@
 # Nestjs email authentication
-This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/), [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
+This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/) v5.0, [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
 
 It can be used as base of a nestjs project: it implements API for login/registration of a user in a database and features of **email verification**, **forgotten password** and **reset password**.
 
@@ -43,7 +43,7 @@ Server will listen on port `3000`, and it expose the following APIs:
   - **email** - *string*
   - **password** - *string*
 
-- **GET** - `auth/email/verify/:token` - Activate user account from token sent in the mail
+- **GET** - `/auth/email/verify/:token` - Activate user account from token sent in the mail
 
 - **GET** - `/auth/email/resend-verification/:email` - Resend verification email with token to user 
 
@@ -55,7 +55,30 @@ Server will listen on port `3000`, and it expose the following APIs:
 
 - **GET** - `/auth/users` - Returns all users (must be logged in)
 
-- **GET** - `/auth/users/user/:email` - Returns selected user info (must be logged in)
+- **GET** - `/users/user/:email` - Returns selected user info (must be logged in)
+
+- **POST** - `/users/profile/update` - Update user info
+  - **name** - *string*
+  - **surname** - *string*
+  - **phone** - *string*
+  - **email** - *string*
+  - **birthdaydate** - *Date*
+  - **profilepicture** - *string (base64)*
+
+- **POST** - `/users/gallery/update` -  Add/Remove user photos
+  - **email** - *string*
+  - **action** - *string ('add' or 'remove')*
+  - **newPhoto** - *object* (only for case 'add')
+    - **imageData** - *string (base64)*
+    - **description** - *string*
+  - **photoId** - *string (base64)* (only for case 'remove')
+
+- **POST** - `settings/update` - Update user settings
+  - **email** - *string*
+  - **settingsKey1** - *string (Value1)*
+  - **settingsKey2** - *string (Value2)*
+  - **...**
+  
 
 # Passport JWT strategy
 This project use JSON Web Token ([JWT](https://www.npmjs.com/package/passport-jwt)) Bearer Token as authentication strategy for Passport. 

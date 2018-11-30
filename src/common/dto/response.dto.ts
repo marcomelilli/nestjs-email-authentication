@@ -4,9 +4,10 @@ import { IResponse } from '../interfaces/response.interface';
 
 export class ResponseError implements IResponse{
   constructor (infoMessage:string, data?: any) {
-    this.success = true;
+    this.success = false;
     this.message = infoMessage;
     this.data = data;
+    console.log(new Date().toString() + ' - ' + JSON.stringify(data));
   };
   message: string;
   data: any[];

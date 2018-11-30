@@ -1,13 +1,16 @@
-import { MongooseModule } from '@nestjs/mongoose';
-import { Module, NestModule, MiddlewaresConsumer } from '@nestjs/common';
-import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { UsersController } from './users/users.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+
+
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://localhost/nest'), UsersModule, AuthModule],
-  controllers: [],
-  components: [],
+  imports: [MongooseModule.forRoot('mongodb://localhost/testdb'), UsersModule, AuthModule],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class ApplicationModule {}
+export class AppModule {}
+

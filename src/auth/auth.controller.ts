@@ -33,12 +33,12 @@ export class AuthController {
       await this.authService.createEmailToken(newUser.email);
       var sended = await this.authService.sendEmailVerification(newUser.email);
       if(sended){
-        return new ResponseSuccess("REGISTER.USER_REGISTERED_SUCCESSFULLY");
+        return new ResponseSuccess("REGISTRATION.USER_REGISTERED_SUCCESSFULLY");
       } else {
-        return new ResponseError("REGISTER.ERROR.MAIL_NOT_SENDED");
+        return new ResponseError("REGISTRATION.ERROR.MAIL_NOT_SENT");
       }
     } catch(error){
-      return new ResponseError("REGISTER.ERROR.GENERIC_ERROR", error);
+      return new ResponseError("REGISTRATION.ERROR.GENERIC_ERROR", error);
     }
   }
 
@@ -58,9 +58,9 @@ export class AuthController {
       await this.authService.createEmailToken(params.email);
       var isEmailSended = await this.authService.sendEmailVerification(params.email);
       if(isEmailSended){
-        return new ResponseSuccess("LOGIN.EMAIL_RESENDED");
+        return new ResponseSuccess("LOGIN.EMAIL_RESENT");
       } else {
-        return new ResponseError("REGISTER.ERROR.MAIL_NOT_SENDED");
+        return new ResponseError("REGISTRATION.ERROR.MAIL_NOT_SENT");
       }
     } catch(error) {
       return new ResponseError("LOGIN.ERROR.SEND_EMAIL", error);
@@ -72,9 +72,9 @@ export class AuthController {
     try {
       var isEmailSended = await this.authService.sendEmailForgotPassword(params.email);
       if(isEmailSended){
-        return new ResponseSuccess("LOGIN.EMAIL_RESENDED");
+        return new ResponseSuccess("LOGIN.EMAIL_RESENT");
       } else {
-        return new ResponseError("REGISTER.ERROR.MAIL_NOT_SENDED");
+        return new ResponseError("REGISTRATION.ERROR.MAIL_NOT_SENT");
       }
     } catch(error) {
       return new ResponseError("LOGIN.ERROR.SEND_EMAIL", error);
@@ -85,12 +85,24 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   public async setNewPassord(@Body() resetPassword: ResetPasswordDto): Promise<IResponse> {
     try {
-      var forgottenPasswordModel = await this.authService.getForgottenPasswordModel(resetPassword.newPasswordToken, resetPassword.newPassword);
-      var isNewPasswordChanged = await this.userService.setPassword(forgottenPasswordModel.email, resetPassword.newPassword);
-      if(isNewPasswordChanged) await forgottenPasswordModel.remove();
-      return new ResponseSuccess("LOGIN.PASSWORD_CHANGED", isNewPasswordChanged);
+      var isNewPasswordChanged : boolean = false;
+      if(resetPassword.email && resetPassword.currentPassword){
+        var isValidPassword = await this.authService.checkPassword(resetPassword.email, resetPassword.currentPassword);
+        if(isValidPassword) {
+          isNewPasswordChanged = await this.userService.setPassword(resetPassword.email, resetPassword.newPassword);
+        } else {
+          return new ResponseError("RESET_PASSWORD.WRONG_CURRENT_PASSWORD");
+        }
+      } else if (resetPassword.newPasswordToken) {
+        var forgottenPasswordModel = await this.authService.getForgottenPasswordModel(resetPassword.newPasswordToken);
+        isNewPasswordChanged = await this.userService.setPassword(forgottenPasswordModel.email, resetPassword.newPassword);
+        if(isNewPasswordChanged) await forgottenPasswordModel.remove();
+      } else {
+        return new ResponseError("RESET_PASSWORD.CHANGE_PASSWORD_ERROR");
+      }
+      return new ResponseSuccess("RESET_PASSWORD.PASSWORD_CHANGED", isNewPasswordChanged);
     } catch(error) {
-      return new ResponseError("LOGIN.ERROR.CHANGE_PASSWORD", error);
+      return new ResponseError("RESET_PASSWORD.CHANGE_PASSWORD_ERROR", error);
     }
   }
 

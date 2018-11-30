@@ -1,27 +1,23 @@
-import * as jwt from 'jsonwebtoken';
-import * as bcrypt from 'bcrypt'; 
+import * as bcrypt from 'bcryptjs'; 
 import * as nodemailer from 'nodemailer';
 import {default as config} from '../config';
-import { Component, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { JWTService } from './jwt.service';
 import { Model } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../users/interfaces/user.interface';
 import { UserDto } from '../users/dto/user.dto';
-import { UserSchema } from '../users/schemas/user.schema';
 import { EmailVerification } from './interfaces/emailverification.interface';
-import { EmailVerificationSchema } from './schemas/emailverification.schema';
 import { ForgottenPassword } from './interfaces/forgottenpassword.interface';
-import { ForgottenPasswordSchema } from './schemas/forgottenpassword.schema';
+import { InjectModel } from '@nestjs/mongoose';
 
 
 const saltRounds = 10;
 
-@Component()
+@Injectable()
 export class AuthService {
-  constructor(@InjectModel(UserSchema) private readonly userModel: Model<User>, 
-  @InjectModel(EmailVerificationSchema) private readonly emailVerificationModel: Model<EmailVerification>,
-  @InjectModel(ForgottenPasswordSchema) private readonly forgottenPasswordModel: Model<ForgottenPassword>,
+  constructor(@InjectModel('User') private readonly userModel: Model<User>, 
+  @InjectModel('EmailVerification') private readonly emailVerificationModel: Model<EmailVerification>,
+  @InjectModel('ForgottenPassword') private readonly forgottenPasswordModel: Model<ForgottenPassword>,
   private readonly jwtService: JWTService) {}
 
 
@@ -33,7 +29,7 @@ export class AuthService {
     var isValidPass = await bcrypt.compare(password, userFromDb.password);
 
     if(isValidPass){
-      var accessToken = await this.jwtService.createToken(email);
+      var accessToken = await this.jwtService.createToken(email, userFromDb.roles);
       return { token: accessToken, user: new UserDto(userFromDb)}
     } else {
       throw new HttpException('LOGIN.PASSWORD_INCORRECT', HttpStatus.UNAUTHORIZED);
@@ -42,36 +38,46 @@ export class AuthService {
   }
 
   async createEmailToken(email: string): Promise<boolean> {
-    var emailVerificationModel = await this.emailVerificationModel.findOneAndUpdate( 
-      {email: email},
-      { 
-        email: email,
-        emailToken: Math.floor(Math.random() * (900000000)) + 100000000, //Generate 9 digits number
-        timestamp: new Date()
-      },
-      {upsert: true}
-    );
-    if(emailVerificationModel){
-      return true;
+    var emailVerification = await this.emailVerificationModel.findOne({email: email}); 
+    if (emailVerification && ( (new Date().getTime() - emailVerification.timestamp.getTime()) / 60000 < 15 )){
+      throw new HttpException('LOGIN.EMAIL_SENDED_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
     } else {
-      throw new HttpException('LOGIN.ERROR.GENERIC_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+      var emailVerificationModel = await this.emailVerificationModel.findOneAndUpdate( 
+        {email: email},
+        { 
+          email: email,
+          emailToken: Math.floor(Math.random() * (900000000)) + 100000000, //Generate 9 digits number
+          timestamp: new Date()
+        },
+        {upsert: true}
+      );
+      if(emailVerificationModel){
+        return true;
+      } else {
+        throw new HttpException('LOGIN.ERROR.GENERIC_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 
   async createForgottenPasswordToken(email: string): Promise<ForgottenPassword> {
-    var forgottenPasswordModel = await this.forgottenPasswordModel.findOneAndUpdate(
-      {email: email},
-      { 
-        email: email,
-        newPasswordToken: Math.floor(Math.random() * (900000000)) + 100000000, //Generate 9 digits number,
-        timestamp: new Date()
-      },
-      {upsert: true}
-    );
-    if(forgottenPasswordModel){
-      return forgottenPasswordModel;
+    var forgottenPassword= await this.forgottenPasswordModel.findOne({email: email});
+    if (forgottenPassword && ( (new Date().getTime() - forgottenPassword.timestamp.getTime()) / 60000 < 15 )){
+      throw new HttpException('RESET_PASSWORD.EMAIL_SENDED_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
     } else {
-      throw new HttpException('LOGIN.ERROR.GENERIC_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+      var forgottenPasswordModel = await this.forgottenPasswordModel.findOneAndUpdate(
+        {email: email},
+        { 
+          email: email,
+          newPasswordToken: Math.floor(Math.random() * (900000000)) + 100000000, //Generate 9 digits number,
+          timestamp: new Date()
+        },
+        {upsert: true, new: true}
+      );
+      if(forgottenPasswordModel){
+        return forgottenPasswordModel;
+      } else {
+        throw new HttpException('LOGIN.ERROR.GENERIC_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
+      }
     }
   }
 
@@ -90,7 +96,7 @@ export class AuthService {
     }
   }
 
-  async getForgottenPasswordModel(newPasswordToken: string, newPassword: string): Promise<ForgottenPassword> {
+  async getForgottenPasswordModel(newPasswordToken: string): Promise<ForgottenPassword> {
     return await this.forgottenPasswordModel.findOne({newPasswordToken: newPasswordToken});
   }
 
@@ -101,7 +107,7 @@ export class AuthService {
         let transporter = nodemailer.createTransport({
             host: config.mail.host,
             port: config.mail.port,
-            secure: config.mail.secure,
+            secure: config.mail.secure, // true for 465, false for other ports
             auth: {
                 user: config.mail.user,
                 pass: config.mail.pass
@@ -109,15 +115,15 @@ export class AuthService {
         });
     
         let mailOptions = {
-          from: '"NestJs Auth"', 
-          to: email, 
+          from: '"Company" <' + config.mail.user + '>', 
+          to: email, // list of receivers (separated by ,)
           subject: 'Verify Email', 
           text: 'Verify Email', 
           html: 'Hi! <br><br> Thanks for your registration<br><br>'+
           '<a href='+ config.host.url + ':' + config.host.port +'/auth/email/verify/'+ model.emailToken + '>Click here to activate your account</a>'  // html body
         };
     
-        var sended = await new Promise<boolean>(async function(resolve, reject) {
+        var sent = await new Promise<boolean>(async function(resolve, reject) {
           return await transporter.sendMail(mailOptions, async (error, info) => {
               if (error) {      
                 console.log('Message sent: %s', error);
@@ -128,10 +134,17 @@ export class AuthService {
           });      
         })
 
-        return sended;
+        return sent;
     } else {
-      throw new HttpException('REGISTER.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
+      throw new HttpException('REGISTRATION.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
     }
+  }
+
+  async checkPassword(email: string, password: string){
+    var userFromDb = await this.userModel.findOne({ email: email});
+    if(!userFromDb) throw new HttpException('LOGIN.USER_NOT_FOUND', HttpStatus.NOT_FOUND);
+
+    return await bcrypt.compare(password, userFromDb.password);
   }
 
   async sendEmailForgotPassword(email: string): Promise<boolean> {
@@ -144,7 +157,7 @@ export class AuthService {
         let transporter = nodemailer.createTransport({
             host: config.mail.host,
             port: config.mail.port,
-            secure: config.mail.secure, 
+            secure: config.mail.secure, // true for 465, false for other ports
             auth: {
                 user: config.mail.user,
                 pass: config.mail.pass
@@ -152,9 +165,9 @@ export class AuthService {
         });
     
         let mailOptions = {
-          from: '"NestJs Auth"', 
-          to: email, 
-          subject: 'Forgot Password', 
+          from: '"Company" <' + config.mail.user + '>', 
+          to: email, // list of receivers (separated by ,)
+          subject: 'Frogotten Password', 
           text: 'Forgot Password',
           html: 'Hi! <br><br> If you requested to reset your password<br><br>'+
           '<a href='+ config.host.url + ':' + config.host.port +'/auth/email/reset-password/'+ tokenModel.newPasswordToken + '>Click here</a>'  // html body
@@ -173,7 +186,7 @@ export class AuthService {
 
         return sended;
     } else {
-      throw new HttpException('REGISTER.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
+      throw new HttpException('REGISTRATION.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
     }
   }
 
