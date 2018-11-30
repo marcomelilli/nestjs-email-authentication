@@ -1,7 +1,7 @@
 # Nestjs email authentication
 This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/) v5.0, [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
 
-It can be used as base of a nestjs project: it implements API for login/registration of a user in a database and features of **email verification**, **forgotten password** and **reset password**.
+It can be used as base of a nestjs project: it implements API for login/registration of a user in a database and features of **email verification**, **forgotten password**, **reset password**, **update profile** and **settings**.
 
 # Getting started
 Install `nodejs` and `mongodb` in your machine.
