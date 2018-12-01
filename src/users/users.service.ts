@@ -92,7 +92,7 @@ export class UsersService {
     let userFromDb = await this.userModel.findOne({ email: galleryRequest.email});
     if(!userFromDb) throw new HttpException('COMMON.USER_NOT_FOUND', HttpStatus.NOT_FOUND);
     let dir = "../public/users/" + userFromDb.email;
-    galleryRequest.newPhoto = JSON.parse(<any>galleryRequest.newPhoto);
+    if(galleryRequest.newPhoto) try {galleryRequest.newPhoto = JSON.parse(<any>galleryRequest.newPhoto)} catch(e){}; //TODO: capire come mai dalla request arriva come stringa e bisogna parsarlo
     
     if(galleryRequest.action){
       switch (galleryRequest.action) {
@@ -110,15 +110,15 @@ export class UsersService {
           break;
         case 'remove':
           var success = await this.removeFile( dir, galleryRequest.photoId);
-          if(success) _.remove(userFromDb.photos.gallery, (photo) => { return photo.url.includes(galleryRequest.photoId)})
+          if(success) _.remove(userFromDb.photos.gallery, (photo) => { return photo.url.includes(galleryRequest.photoId)});
+          userFromDb.markModified('photos');
           break;
         default:
           throw new HttpException('GALLERY.MISSING_ACTION', HttpStatus.NOT_FOUND);
       }
     }
     
-    await userFromDb.save();
-    return userFromDb;
+    return userFromDb.save();
   }
 
   async writeFile(dir: string, filename: string, base64Data: string): Promise<any> {
