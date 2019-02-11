@@ -31,8 +31,9 @@ export class AuthController {
     try {
       var newUser = new UserDto(await this.userService.createNewUser(createUserDto));
       await this.authService.createEmailToken(newUser.email);
-      var sended = await this.authService.sendEmailVerification(newUser.email);
-      if(sended){
+      await this.authService.saveUserConsent(newUser.email);
+      var sent = await this.authService.sendEmailVerification(newUser.email);
+      if(sent){
         return new ResponseSuccess("REGISTRATION.USER_REGISTERED_SUCCESSFULLY");
       } else {
         return new ResponseError("REGISTRATION.ERROR.MAIL_NOT_SENT");
@@ -56,9 +57,9 @@ export class AuthController {
   public async sendEmailVerification(@Param() params): Promise<IResponse> {
     try {
       await this.authService.createEmailToken(params.email);
-      var isEmailSended = await this.authService.sendEmailVerification(params.email);
-      if(isEmailSended){
-        return new ResponseSuccess("LOGIN.EMAIL_RESENT");
+      var isEmailSent = await this.authService.sendEmailVerification(params.email);
+      if(isEmailSent){
+        return new ResponseSuccess("LOGIN.EMAIL_RESENT", null);
       } else {
         return new ResponseError("REGISTRATION.ERROR.MAIL_NOT_SENT");
       }
@@ -70,9 +71,9 @@ export class AuthController {
   @Get('email/forgot-password/:email')
   public async sendEmailForgotPassword(@Param() params): Promise<IResponse> {
     try {
-      var isEmailSended = await this.authService.sendEmailForgotPassword(params.email);
-      if(isEmailSended){
-        return new ResponseSuccess("LOGIN.EMAIL_RESENT");
+      var isEmailSent = await this.authService.sendEmailForgotPassword(params.email);
+      if(isEmailSent){
+        return new ResponseSuccess("LOGIN.EMAIL_RESENT", null);
       } else {
         return new ResponseError("REGISTRATION.ERROR.MAIL_NOT_SENT");
       }

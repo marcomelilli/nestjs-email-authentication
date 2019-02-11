@@ -1,11 +1,17 @@
-import { Middleware, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
+import { Injectable, NestMiddleware, MiddlewareFunction } from '@nestjs/common';
 
-@Middleware()
+@Injectable()
 export class LoggerMiddleware implements NestMiddleware {
   resolve(name: string): MiddlewareFunction {
     return (req, res, next) => {
-      console.log(`[${name}] Middleware...`); // [ApplicationModule] Request...
+      try {
+        var offuscateRequest = JSON.parse(JSON.stringify(req.body));
+        if(offuscateRequest && offuscateRequest.password) offuscateRequest.password = "*******";
+        if(offuscateRequest && offuscateRequest.newPassword) offuscateRequest.newPassword = "*******";
+        if(offuscateRequest && offuscateRequest.currentPassword) offuscateRequest.currentPassword = "*******";
+        if(offuscateRequest != {}) console.log(new Date().toString() + ' - [Request] ' + req.baseUrl + " - " + JSON.stringify(offuscateRequest));
+      } catch (error) {}
       next();
     };
-  }
+ }
 }

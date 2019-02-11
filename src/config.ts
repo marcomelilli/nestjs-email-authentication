@@ -5,7 +5,7 @@ export default {
     },
     "jwt": {
         "secretOrKey": "secret",
-        "expiresIn": 3600
+        "expiresIn": 36000000
     },
     "mail":{
         "host": "<smtp-host>",

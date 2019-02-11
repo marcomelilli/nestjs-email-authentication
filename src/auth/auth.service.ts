@@ -1,13 +1,15 @@
+import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs'; 
 import * as nodemailer from 'nodemailer';
 import {default as config} from '../config';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, HttpModule, HttpService } from '@nestjs/common';
 import { JWTService } from './jwt.service';
 import { Model } from 'mongoose';
 import { User } from '../users/interfaces/user.interface';
 import { UserDto } from '../users/dto/user.dto';
 import { EmailVerification } from './interfaces/emailverification.interface';
 import { ForgottenPassword } from './interfaces/forgottenpassword.interface';
+import { ConsentRegistry } from './interfaces/consentregistry.interface';
 import { InjectModel } from '@nestjs/mongoose';
 
 
@@ -18,6 +20,7 @@ export class AuthService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>, 
   @InjectModel('EmailVerification') private readonly emailVerificationModel: Model<EmailVerification>,
   @InjectModel('ForgottenPassword') private readonly forgottenPasswordModel: Model<ForgottenPassword>,
+  @InjectModel('ConsentRegistry') private readonly consentRegistryModel: Model<ConsentRegistry>,
   private readonly jwtService: JWTService) {}
 
 
@@ -32,7 +35,7 @@ export class AuthService {
       var accessToken = await this.jwtService.createToken(email, userFromDb.roles);
       return { token: accessToken, user: new UserDto(userFromDb)}
     } else {
-      throw new HttpException('LOGIN.PASSWORD_INCORRECT', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('LOGIN.ERROR', HttpStatus.UNAUTHORIZED);
     }
 
   }
@@ -46,16 +49,32 @@ export class AuthService {
         {email: email},
         { 
           email: email,
-          emailToken: Math.floor(Math.random() * (900000000)) + 100000000, //Generate 9 digits number
+          emailToken: Math.floor(Math.random() * (9000000)) + 1000000, //Generate 7 digits number
           timestamp: new Date()
         },
         {upsert: true}
       );
-      if(emailVerificationModel){
-        return true;
-      } else {
-        throw new HttpException('LOGIN.ERROR.GENERIC_ERROR', HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+      return true;
+    }
+  }
+
+  async saveUserConsent(email: string): Promise<ConsentRegistry> {
+    try {
+      var http = new HttpService();
+
+      var newConsent = new this.consentRegistryModel();
+      newConsent.email = email;
+      newConsent.date = new Date();
+      newConsent.registrationForm = ["name", "surname", "email", "birthday date", "password"];
+      newConsent.checkboxText = "I accept privacy policy";
+      var privacyPolicyResponse: any = await http.get("https://www.XXXXXX.com/api/privacy-policy").toPromise()
+      newConsent.privacyPolicy = privacyPolicyResponse.data.content; 
+      var cookiePolicyResponse: any = await http.get("https://www.XXXXXX.com/api/privacy-policy").toPromise()
+      newConsent.cookiePolicy = cookiePolicyResponse.data.content;
+      newConsent.acceptedPolicy = "Y";
+      return await newConsent.save();
+    } catch(error) {
+      console.error(error)
     }
   }
 
@@ -68,7 +87,7 @@ export class AuthService {
         {email: email},
         { 
           email: email,
-          newPasswordToken: Math.floor(Math.random() * (900000000)) + 100000000, //Generate 9 digits number,
+          newPasswordToken: Math.floor(Math.random() * (9000000)) + 1000000, //Generate 7 digits number,
           timestamp: new Date()
         },
         {upsert: true, new: true}
@@ -136,7 +155,7 @@ export class AuthService {
 
         return sent;
     } else {
-      throw new HttpException('REGISTRATION.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
+      throw new HttpException('REGISTER.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
     }
   }
 
@@ -186,7 +205,7 @@ export class AuthService {
 
         return sended;
     } else {
-      throw new HttpException('REGISTRATION.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
+      throw new HttpException('REGISTER.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
     }
   }
 

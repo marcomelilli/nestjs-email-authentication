@@ -59,9 +59,9 @@ export class UsersController {
   async updateGallery(@Body() galleryRequest: UpdateGalleryDto): Promise<IResponse> {
     try {
       var user =  await this.usersService.updateGallery(galleryRequest);
-      return new ResponseSuccess("GALLERY.UPDATE_SUCCESS", new UserDto(user));
+      return new ResponseSuccess("PROFILE.UPDATE_SUCCESS", new UserDto(user));
     } catch(error){
-      return new ResponseError("GALLERY.UPDATE_ERROR", error);
+      return new ResponseError("PROFILE.UPDATE_ERROR", error);
     }
   }
 
