@@ -101,6 +101,15 @@ Authorization header example:
 ```
  Authorization → Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...._DkYJJh4s
 ```
+# Logger
+All request and response are logged so this can help you to debug in production. 
+If you use pm2 as process manager, I suggest you to install [pm2-logrotate](https://github.com/keymetrics/pm2-logrotate) in your server.
+
+# Security
+The project implements some of nodejs [security techniques](https://docs.nestjs.com/techniques/security) :
+- [Helmet](https://github.com/helmetjs/helmet) : can help protect your app from some well-known web vulnerabilities by setting HTTP headers appropriately
+- [Express Rate Limit](https://github.com/nfriedly/express-rate-limit): to protect your applications from brute-force attacks
+  - In the main.ts you can set a limit of requests in a time window (default is 100 requests in 15 minutes for all endpoints, and 3 requests in a 1 hour for sign up endpoint)
 
 # Copyright
 Licensed under the MIT license.
