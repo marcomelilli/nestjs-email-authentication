@@ -33,13 +33,13 @@ npm run start
 Server will listen on port `3000`, and it expose the following APIs:
 
 
-- **POST** - `/auth/email/register` - Login user
+- **POST** - `/auth/email/register` - Register a new user
   - **email** - *string*
   - **password** - *string*
   - **name** - *string (optional)*
   - **surname** - *string (optional)*
 
-- **POST** - `/auth/email/login` - Register a new user
+- **POST** - `/auth/email/login` - Login user
   - **email** - *string*
   - **password** - *string*
 
