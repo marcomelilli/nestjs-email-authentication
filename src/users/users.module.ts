@@ -8,7 +8,7 @@ import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
 @Module({
   imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
   controllers: [UsersController],
-  providers: [UsersService, BenchesService]
+  providers: [UsersService]
 })
 export class UsersModule implements NestModule {
   public configure(consumer: MiddlewareConsumer) {
