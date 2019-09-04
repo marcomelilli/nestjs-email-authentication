@@ -1,8 +1,7 @@
-import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs'; 
 import * as nodemailer from 'nodemailer';
 import {default as config} from '../config';
-import { Injectable, HttpException, HttpStatus, HttpModule, HttpService } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, HttpService } from '@nestjs/common';
 import { JWTService } from './jwt.service';
 import { Model } from 'mongoose';
 import { User } from '../users/interfaces/user.interface';
@@ -12,8 +11,6 @@ import { ForgottenPassword } from './interfaces/forgottenpassword.interface';
 import { ConsentRegistry } from './interfaces/consentregistry.interface';
 import { InjectModel } from '@nestjs/mongoose';
 
-
-const saltRounds = 10;
 
 @Injectable()
 export class AuthService {

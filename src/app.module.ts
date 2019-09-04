@@ -4,11 +4,13 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import {default as config} from './config';
 
-
+const userString = config.db.user && config.db.pass ? (config.db.user + ':' + config.db.pass + '@') : '';
+const authSource = (config.db.authSource?'?authSource='+config.db.authSource:'');
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://localhost/testdb'), UsersModule, AuthModule],
+  imports: [MongooseModule.forRoot('mongodb://' + userString + config.db.host + '/' + config.db.database + authSource), UsersModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

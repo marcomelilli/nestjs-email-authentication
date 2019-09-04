@@ -1,4 +1,11 @@
 export default {
+    "db": {
+        "user": null,
+        "pass": null,
+        "host": 'localhost',
+        "database": "testdb",
+        "authSource": null
+    },
     "host": {
         "url": "<server-url>",
         "port": "3000"

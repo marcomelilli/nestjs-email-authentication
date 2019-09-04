@@ -5,8 +5,6 @@ import { Model } from 'mongoose';
 import { User } from '../users/interfaces/user.interface';
 import { InjectModel } from '../../node_modules/@nestjs/mongoose';
 
-const saltRounds = 10;
-
 @Injectable()
 export class JWTService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
