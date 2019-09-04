@@ -1,7 +1,7 @@
 # Nestjs email authentication
 This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/) v5.0, [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
 
-It can be used as base of a nestjs project: it implements API for login/registration of a user in a database and features of **email verification**, **forgotten password**, **reset password**, **update profile** and **settings**.
+It can be used as starter for a new project: it implements API for user sign-in/sign-up and features like **email verification**, **forgotten password**, **reset password**, **update profile** and **settings**.
 
 # Getting started
 Install `nodejs` and `mongodb` in your machine.
@@ -16,7 +16,7 @@ npm run start
  You can find a `config.ts` file in the root of the project. Before run the server you have to set :email: [Nodemailer](https://github.com/nodemailer/nodemailer) options to be able to send emails:
 ```
 "host": {
-    "url": "<server-url>", //It is needed to redirect user to your server from received email
+    "url": "<server-url>",
     "port": "3000"
 },
 ...
@@ -43,15 +43,15 @@ Server will listen on port `3000`, and it expose the following APIs:
   - **email** - *string*
   - **password** - *string*
 
-- **GET** - `/auth/email/verify/:token` - Activate user account from token sent in the mail
+- **GET** - `/auth/email/verify/:token` - Validates the token sent in the email and activates the user's account
 
-- **GET** - `/auth/email/resend-verification/:email` - Resend verification email with token to user 
+- **GET** - `/auth/email/resend-verification/:email` - Resend verification email
 
-- **GET** - `/auth/email/forgot-password/:email` - Send email with token for rest password 
+- **GET** - `/auth/email/forgot-password/:email` - Send a token via email to reset the password 
 
 - **POST** - `/auth/email/reset-password` - Change user password
   - **newPassword** - *string*
-  - **newPasswordToken** - *string (token received from forgot-password api)*
+  - **newPasswordToken** - *string (token received by forgot-password api)*
 
 - **GET** - `/auth/users` - Returns all users (must be logged in)
 
