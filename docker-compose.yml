@@ -20,15 +20,18 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
+    depends_on:
+      - mongo
 
   nestjs-auth:
     image: marcomelilli/mynestjsapp
     build: .
+    command: npm run start
     restart: always
     ports:
       - 3001:3000
     volumes:
-      - .:/usr/src/app
+      - nestjsdata:/usr/src/app
     networks:
       - mynetwork
     depends_on:
@@ -36,6 +39,7 @@ services:
 
 volumes:
   mongodata:
+  nestjsdata:
 
 networks:
   mynetwork:

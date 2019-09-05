@@ -1,10 +1,10 @@
 export default {
     "db": {
-        "user": null,
-        "pass": null,
-        "host": 'localhost',
+        "user": "root",
+        "pass": "example",
+        "host": "mongo",
         "database": "testdb",
-        "authSource": null
+        "authSource": "admin"
     },
     "host": {
         "url": "<server-url>",
