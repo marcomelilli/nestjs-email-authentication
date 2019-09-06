@@ -13,7 +13,7 @@ npm run start
 ```
 
 # Deploy using Docker
-To deploy app in containers run:
+⚠️ Before deploy the app in a container set the right configuration as explained in the section below, and then you can run:
 ``` 
 docker-compose up -d
 ```
@@ -27,13 +27,14 @@ You can edit the config is in `docker-compose.yml`.
 
 # Configuration File
 You can find a `config.ts` file in the root of the project.   
-⚠️ Before run the server set your **db configuration** (according you are using docker or not) and your :email: [Nodemailer](https://github.com/nodemailer/nodemailer) options to be able to send emails for registration:
+Before run the server set your **db configuration** (according you are using docker or not) and your :email: [Nodemailer](https://github.com/nodemailer/nodemailer) options to be able to send emails for registration:
 ```
 # Docker Example #
 "db": {
     "user": "root",
     "pass": "example",
     "host": "mongo",
+    "port": "27017",
     "database": "testdb", 
     "authSource": "admin"
 }
@@ -42,7 +43,8 @@ You can find a `config.ts` file in the root of the project.
 "db": {
 "   user": null,
    "pass": null,
-   "host": 'localhost',
+   "host": "localhost",
+   "port": "27017",
    "database": "testdb",
    "authSource": null
 }
