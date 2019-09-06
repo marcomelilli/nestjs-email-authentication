@@ -10,7 +10,7 @@ const userString = config.db.user && config.db.pass ? (config.db.user + ':' + co
 const authSource = config.db.authSource ? ('?authSource='+config.db.authSource + '&w=1') : '' ;
 
 @Module({
-  imports: [MongooseModule.forRoot('mongodb://' + userString + config.db.host + ':27017/' + config.db.database + authSource), UsersModule, AuthModule],
+  imports: [MongooseModule.forRoot('mongodb://' + userString + config.db.host + ':' + (config.db.port || '27017') +' /' + config.db.database + authSource), UsersModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
