@@ -12,14 +12,53 @@ npm install
 npm run start
 ```
 
-# Configuration File
- You can find a `config.ts` file in the root of the project. Before run the server you have to set :email: [Nodemailer](https://github.com/nodemailer/nodemailer) options to be able to send emails:
+# Deploy using Docker
+⚠️ Before deploy the app in a container set the right **configuration** as explained in the section below, and then you can run:
+``` 
+docker-compose up -d
 ```
+It will generate 3 containers: 
+- nestjs: nodejs application -> localhost:3000
+- mongodb: database -> expose 27017 in the container network but not reacheable from outside.
+- mongo-express: a web-based MongoDB admin interface -> localhost:8081
+
+You can edit the config is in `docker-compose.yml`.  
+❗ Note: For security reason, remember to **change the db password** in docker-compose.yml and in config.ts file, and to **change the mongo-express password** to access the console.
+
+
+# Configuration File
+You can find a `config.ts` file in the root of the project.   
+Before run the server set your **db configuration** (according you are using docker or not) and your :email: [Nodemailer](https://github.com/nodemailer/nodemailer) options to be able to send emails for registration:
+```
+# Docker Example #
+"db": {
+    "user": "root",
+    "pass": "example",
+    "host": "mongo",
+    "port": "27017",
+    "database": "testdb", 
+    "authSource": "admin"
+}
+
+# Local nodejs Example #
+"db": {
+"   user": null,
+   "pass": null,
+   "host": "localhost",
+   "port": "27017",
+   "database": "testdb",
+   "authSource": null
+}
+
+...  
+
 "host": {
     "url": "<server-url>",
     "port": "3000"
 },
+
 ...
+
 "mail":{ 
     "host": "<smtp-host>", //Nodemailer settings (go to the nodemailer documentation for further informations)
     "port": "<port>",
