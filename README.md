@@ -23,6 +23,7 @@ It will generate 3 containers:
 - mongo-express: a web-based MongoDB admin interface -> localhost:8081
 
 You can edit the config is in `docker-compose.yml`.
+❗ Note: For security reason, remember to change the db password in docker-compose.yml and in config.ts file, and to change the password to access to mongo-express console.
 
 
 # Configuration File
