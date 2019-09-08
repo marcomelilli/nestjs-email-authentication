@@ -13,7 +13,7 @@ npm run start
 ```
 
 # Deploy using Docker
-⚠️ Before deploy the app in a container set the right configuration as explained in the section below, and then you can run:
+⚠️ Before deploy the app in a container set the right **configuration** as explained in the section below, and then you can run:
 ``` 
 docker-compose up -d
 ```
@@ -22,8 +22,8 @@ It will generate 3 containers:
 - mongodb: database -> expose 27017 in the container network but not reacheable from outside.
 - mongo-express: a web-based MongoDB admin interface -> localhost:8081
 
-You can edit the config is in `docker-compose.yml`.
-❗ Note: For security reason, remember to change the db password in docker-compose.yml and in config.ts file, and to change the password to access to mongo-express console.
+You can edit the config is in `docker-compose.yml`.  
+❗ Note: For security reason, remember to **change the db password** in docker-compose.yml and in config.ts file, and to **change the mongo-express password** to access the console.
 
 
 # Configuration File
