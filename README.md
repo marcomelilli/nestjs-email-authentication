@@ -42,7 +42,7 @@ Before run the server set your **db configuration** (according you are using doc
 
 # Local nodejs Example #
 "db": {
-"   user": null,
+   "user": null,
    "pass": null,
    "host": "localhost",
    "port": "27017",
@@ -53,7 +53,7 @@ Before run the server set your **db configuration** (according you are using doc
 ...  
 
 "host": {
-    "url": "<server-url>",  //This is used to generate the link for the verification sent via email to the users
+    "url": "<server-url>",  //This link is used to redirect users to your server to confirm their email address (link via email)
     "port": "3000"
 },
 
