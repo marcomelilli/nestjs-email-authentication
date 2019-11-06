@@ -1,5 +1,5 @@
 # Nestjs email authentication
-This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/) v5.0, [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
+This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/) v6.9.0, [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
 
 It can be used as starter for a new project: it implements API for user sign-in/sign-up and features like **email verification**, **forgotten password**, **reset password**, **update profile** and **settings**.
 
@@ -18,7 +18,7 @@ npm run start
 docker-compose up -d
 ```
 It will generate 3 containers: 
-- nestjs: nodejs application -> localhost:3000
+- nestjs: nodejs application -> localhost:3000 (you can change the port in the docker-compose.yml)
 - mongodb: database -> expose 27017 in the container network but not reacheable from outside.
 - mongo-express: a web-based MongoDB admin interface -> localhost:8081
 
@@ -53,14 +53,14 @@ Before run the server set your **db configuration** (according you are using doc
 ...  
 
 "host": {
-    "url": "<server-url>",
+    "url": "<server-url>",  //This is used to generate the link for the verification sent via email to the users
     "port": "3000"
 },
 
 ...
 
 "mail":{ 
-    "host": "<smtp-host>", //Nodemailer settings (go to the nodemailer documentation for further informations)
+    "host": "<smtp-host>", //Nodemailer settings (go to the nodemailer documentation for further informations) - You need to set up this to make the signup api start working
     "port": "<port>",
     "secure": false,
     "user": "<username>",

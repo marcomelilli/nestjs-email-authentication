@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import * as express from 'express';
@@ -9,7 +10,7 @@ import * as rateLimit from 'express-rate-limit';
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use('/public', express.static(join(__dirname, '../../public')));
   var bodyParser = require('body-parser');
   app.use(bodyParser.json({limit: '5mb'}));
