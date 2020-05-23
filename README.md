@@ -1,4 +1,4 @@
-# Nestjs email authentication
+# Nestjs email authentication starter
 This project is an example of implementation of a user **email authentication** with [Nestjs](https://nestjs.com/) v6.9.0, [MongoDB](https://www.mongodb.com/) and [PassportJs](http://www.passportjs.org)
 
 It can be used as starter for a new project: it implements API for user sign-in/sign-up and features like **email verification**, **forgotten password**, **reset password**, **update profile** and **settings**.
