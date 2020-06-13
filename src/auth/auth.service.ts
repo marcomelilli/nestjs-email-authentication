@@ -46,7 +46,7 @@ export class AuthService {
         {email: email},
         { 
           email: email,
-          emailToken: Math.floor(Math.random() * (9000000)) + 1000000, //Generate 7 digits number
+          emailToken: (Math.floor(Math.random() * (9000000)) + 1000000).toString(), //Generate 7 digits number
           timestamp: new Date()
         },
         {upsert: true}
@@ -84,7 +84,7 @@ export class AuthService {
         {email: email},
         { 
           email: email,
-          newPasswordToken: Math.floor(Math.random() * (9000000)) + 1000000, //Generate 7 digits number,
+          newPasswordToken: (Math.floor(Math.random() * (9000000)) + 1000000).toString(), //Generate 7 digits number,
           timestamp: new Date()
         },
         {upsert: true, new: true}
