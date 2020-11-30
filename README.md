@@ -157,6 +157,8 @@ If you want to contribute to this starter, consider:
 - Improve the documentation
 - Creating new features and pull requests
 
+<a href="https://www.buymeacoffee.com/marcomelilli"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=marcomelilli&button_colour=FF5F5F&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00"></a>
+
 All contributions are welcome!
 
 # Copyright
