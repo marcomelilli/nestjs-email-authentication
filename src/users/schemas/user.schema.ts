@@ -10,7 +10,7 @@ export const UserSchema = new mongoose.Schema({
   phone: String,
   password: String,
   birthdaydate: Date,
-  roles: Array<String>(),
+  roles: [],
   auth: {
     email : {
       valid : { type: Boolean, default: false }
