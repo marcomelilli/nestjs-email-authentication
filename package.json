@@ -35,7 +35,7 @@
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.21",
     "mongoose": "^5.13.7",
-    "nodemailer": "^6.4.16",
+    "nodemailer": "^6.6.1",
     "nodemon": "^1.19.4",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
