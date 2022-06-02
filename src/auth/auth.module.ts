@@ -1,4 +1,3 @@
-import * as passport from 'passport';
 import {
   Module, MiddlewareConsumer, NestModule
 } from '@nestjs/common';
@@ -13,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { JWTService } from './jwt.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -20,7 +20,7 @@ import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
     { name: 'EmailVerification', schema: EmailVerificationSchema },
     { name: 'ForgottenPassword', schema: ForgottenPasswordSchema },
     { name: 'ConsentRegistry', schema: ConsentRegistrySchema }
-  ])],
+  ]), HttpModule],
   controllers: [AuthController],
   providers: [AuthService, UsersService, JWTService, JwtStrategy],
 })

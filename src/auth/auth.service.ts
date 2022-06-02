@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcryptjs'; 
 import * as nodemailer from 'nodemailer';
 import {default as config} from '../config';
-import { Injectable, HttpException, HttpStatus, HttpService } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { JWTService } from './jwt.service';
 import { Model } from 'mongoose';
 import { User } from '../users/interfaces/user.interface';
@@ -10,6 +10,8 @@ import { EmailVerification } from './interfaces/emailverification.interface';
 import { ForgottenPassword } from './interfaces/forgottenpassword.interface';
 import { ConsentRegistry } from './interfaces/consentregistry.interface';
 import { InjectModel } from '@nestjs/mongoose';
+import { HttpService } from '@nestjs/axios';
+import { lastValueFrom } from 'rxjs';
 
 
 @Injectable()
@@ -18,8 +20,8 @@ export class AuthService {
   @InjectModel('EmailVerification') private readonly emailVerificationModel: Model<EmailVerification>,
   @InjectModel('ForgottenPassword') private readonly forgottenPasswordModel: Model<ForgottenPassword>,
   @InjectModel('ConsentRegistry') private readonly consentRegistryModel: Model<ConsentRegistry>,
-  private readonly jwtService: JWTService) {}
-
+  private readonly jwtService: JWTService,
+  private readonly httpService: HttpService) {}
 
   async validateLogin(email, password) {
     var userFromDb = await this.userModel.findOne({ email: email});
@@ -40,7 +42,7 @@ export class AuthService {
   async createEmailToken(email: string): Promise<boolean> {
     var emailVerification = await this.emailVerificationModel.findOne({email: email}); 
     if (emailVerification && ( (new Date().getTime() - emailVerification.timestamp.getTime()) / 60000 < 15 )){
-      throw new HttpException('LOGIN.EMAIL_SENDED_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('LOGIN.EMAIL_SENT_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
     } else {
       var emailVerificationModel = await this.emailVerificationModel.findOneAndUpdate( 
         {email: email},
@@ -56,18 +58,19 @@ export class AuthService {
   }
 
   async saveUserConsent(email: string): Promise<ConsentRegistry> {
+    //TODO: replace with your site url containing the updated version of the consent form
+    const privacyPolicyURL = "https://www.[yoursite].com/api/privacy-policy";
+    const cookiePolicyURL = "https://www.[yoursite].com/api/cookie-policy";
     try {
-      var http = new HttpService();
-
       var newConsent = new this.consentRegistryModel();
       newConsent.email = email;
       newConsent.date = new Date();
       newConsent.registrationForm = ["name", "surname", "email", "birthday date", "password"];
       newConsent.checkboxText = "I accept privacy policy";
-      var privacyPolicyResponse: any = await http.get("https://www.XXXXXX.com/api/privacy-policy").toPromise()
-      newConsent.privacyPolicy = privacyPolicyResponse.data.content; 
-      var cookiePolicyResponse: any = await http.get("https://www.XXXXXX.com/api/privacy-policy").toPromise()
-      newConsent.cookiePolicy = cookiePolicyResponse.data.content;
+      var privacyPolicyResponse: any = await lastValueFrom(this.httpService.get(privacyPolicyURL));
+      newConsent.privacyPolicy = privacyPolicyResponse.data; 
+      var cookiePolicyResponse: any = await lastValueFrom(this.httpService.get(cookiePolicyURL));
+      newConsent.cookiePolicy = cookiePolicyResponse.data;
       newConsent.acceptedPolicy = "Y";
       return await newConsent.save();
     } catch(error) {
@@ -78,7 +81,7 @@ export class AuthService {
   async createForgottenPasswordToken(email: string): Promise<ForgottenPassword> {
     var forgottenPassword= await this.forgottenPasswordModel.findOne({email: email});
     if (forgottenPassword && ( (new Date().getTime() - forgottenPassword.timestamp.getTime()) / 60000 < 15 )){
-      throw new HttpException('RESET_PASSWORD.EMAIL_SENDED_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('RESET_PASSWORD.EMAIL_SENT_RECENTLY', HttpStatus.INTERNAL_SERVER_ERROR);
     } else {
       var forgottenPasswordModel = await this.forgottenPasswordModel.findOneAndUpdate(
         {email: email},
@@ -189,7 +192,7 @@ export class AuthService {
           '<a href='+ config.host.url + ':' + config.host.port +'/auth/email/reset-password/'+ tokenModel.newPasswordToken + '>Click here</a>'  // html body
         };
     
-        var sended = await new Promise<boolean>(async function(resolve, reject) {
+        var sent = await new Promise<boolean>(async function(resolve, reject) {
           return await transporter.sendMail(mailOptions, async (error, info) => {
               if (error) {      
                 console.log('Message sent: %s', error);
@@ -200,7 +203,7 @@ export class AuthService {
           });      
         })
 
-        return sended;
+        return sent;
     } else {
       throw new HttpException('REGISTER.USER_NOT_REGISTERED', HttpStatus.FORBIDDEN);
     }

@@ -31,7 +31,7 @@ export class AuthController {
     try {
       var newUser = new UserDto(await this.userService.createNewUser(createUserDto));
       await this.authService.createEmailToken(newUser.email);
-      await this.authService.saveUserConsent(newUser.email);
+      //await this.authService.saveUserConsent(newUser.email); //[GDPR user content]
       var sent = await this.authService.sendEmailVerification(newUser.email);
       if(sent){
         return new ResponseSuccess("REGISTRATION.USER_REGISTERED_SUCCESSFULLY");
