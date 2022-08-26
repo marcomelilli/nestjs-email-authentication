@@ -35,7 +35,7 @@
     "helmet": "^3.21.2",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.21",
-    "mongoose": "^6.0.2",
+    "mongoose": "^6.4.6",
     "nodemailer": "^6.6.1",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
